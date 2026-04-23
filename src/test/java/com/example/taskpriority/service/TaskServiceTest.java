@@ -248,4 +248,48 @@ class TaskServiceTest {
         Task highImportance = taskService.createTask(buildRequest("High Importance", 1, 5));
         assertEquals(highUrgency.getPriorityScore(), highImportance.getPriorityScore());
     }
+
+    // --- Completion ---
+
+    @Test
+    void shouldDefaultToNotCompletedOnCreation() {
+        Task task = taskService.createTask(buildRequest("Task", 3, 3));
+        assertFalse(task.isCompleted());
+    }
+
+    @Test
+    void shouldMarkTaskAsCompleted() {
+        Task task = taskService.createTask(buildRequest("Task", 3, 3));
+        Task completed = taskService.completeTask(task.getId());
+        assertTrue(completed.isCompleted());
+    }
+
+    @Test
+    void shouldExcludeCompletedTasksFromSortedList() {
+        taskService.createTask(buildRequest("Active Task", 4, 4));
+        Task completed = taskService.createTask(buildRequest("Completed Task", 5, 5));
+        taskService.completeTask(completed.getId());
+
+        List<Task> sorted = taskService.getAllTasksSorted();
+
+        assertEquals(1, sorted.size());
+        assertEquals("Active Task", sorted.get(0).getName());
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenAllTasksAreCompleted() {
+        Task task1 = taskService.createTask(buildRequest("Task 1", 3, 3));
+        Task task2 = taskService.createTask(buildRequest("Task 2", 4, 4));
+        taskService.completeTask(task1.getId());
+        taskService.completeTask(task2.getId());
+
+        assertTrue(taskService.getAllTasksSorted().isEmpty());
+    }
+
+    @Test
+    void shouldThrowWhenCompletingNonExistentTask() {
+        InvalidTaskInputException ex = assertThrows(InvalidTaskInputException.class,
+                () -> taskService.completeTask("non-existent-id"));
+        assertTrue(ex.getMessage().contains("Task not found"));
+    }
 }

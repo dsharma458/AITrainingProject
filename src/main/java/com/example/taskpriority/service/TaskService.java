@@ -33,6 +33,7 @@ public class TaskService {
 
     public List<Task> getAllTasksSorted() {
         return taskStore.values().stream()
+                .filter(task -> !task.isCompleted())
                 .sorted(Comparator.comparingInt(Task::getPriorityScore).reversed())
                 .toList();
     }
@@ -56,5 +57,13 @@ public class TaskService {
         }
         taskStore.remove(id);
     }
-}
 
+    public Task completeTask(String id) {
+        Task task = taskStore.get(id);
+        if (task == null) {
+            throw new InvalidTaskInputException("Task not found with id: " + id);
+        }
+        task.setCompleted(true);
+        return task;
+    }
+}

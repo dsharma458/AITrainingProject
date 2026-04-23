@@ -59,6 +59,18 @@ MODEL: Task.java
   Params:  None
   Last Updated: 2026-04-23
 
+[Task.java] -> [isCompleted()]
+  Purpose: Returns whether the task has been marked as completed.
+           Completed tasks are excluded from the sorted task list.
+  Params:  None
+  Last Updated: 2026-04-23
+
+[Task.java] -> [setCompleted(boolean completed)]
+  Purpose: Marks the task as completed or resets it. When set to true,
+           the task will no longer appear in the GET /tasks sorted response.
+  Params:  boolean/completed
+  Last Updated: 2026-04-23
+
 --------------------------------------------------------------------------------
 DTO: TaskRequest.java
 --------------------------------------------------------------------------------
@@ -111,8 +123,9 @@ SERVICE: TaskService.java
   Last Updated: 2026-04-23
 
 [TaskService.java] -> [getAllTasksSorted()]
-  Purpose: Retrieves all tasks from the in-memory store and returns them as a list
-           sorted by priorityScore in descending order (highest priority first).
+  Purpose: Retrieves all tasks from the in-memory store, filters out completed
+           tasks, and returns the remaining tasks sorted by priorityScore
+           in descending order (highest priority first).
   Params:  None
   Last Updated: 2026-04-23
 
@@ -126,6 +139,14 @@ SERVICE: TaskService.java
 [TaskService.java] -> [deleteTask(String id)]
   Purpose: Removes a task from the in-memory store by its ID. Throws
            InvalidTaskInputException if no task exists with the given ID.
+  Params:  String/id
+  Last Updated: 2026-04-23
+
+[TaskService.java] -> [completeTask(String id)]
+  Purpose: Looks up a task by ID and marks it as completed by setting the
+           completed flag to true. The task will subsequently be excluded
+           from the sorted task list. Throws InvalidTaskInputException if
+           the task ID is not found.
   Params:  String/id
   Last Updated: 2026-04-23
 
@@ -164,6 +185,13 @@ CONTROLLER: TaskController.java
   Params:  String/id
   Last Updated: 2026-04-23
 
+[TaskController.java] -> [completeTask(String id)]
+  Purpose: Handles PATCH /tasks/{id}/complete. Marks a task as completed
+           and returns HTTP 200 OK with the updated task. Returns 400 if
+           the task ID does not exist.
+  Params:  String/id
+  Last Updated: 2026-04-23
+
 --------------------------------------------------------------------------------
 EXCEPTION: InvalidTaskInputException.java
 --------------------------------------------------------------------------------
@@ -187,6 +215,5 @@ EXCEPTION HANDLER: GlobalExceptionHandler.java
   Last Updated: 2026-04-23
 
 ================================================================================
-  END OF MANIFEST | Total Methods Documented: 24
+  END OF MANIFEST | Total Methods Documented: 27
 ================================================================================
-

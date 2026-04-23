@@ -115,5 +115,52 @@ class TaskControllerIntegrationTest {
         mockMvc.perform(get("/tasks"))
                 .andExpect(jsonPath("$", hasSize(0)));
     }
-}
 
+    @Test
+    void shouldMarkTaskAsCompletedAndReturn200() throws Exception {
+        String response = mockMvc.perform(post("/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson("Task", 3, 3)))
+                .andReturn().getResponse().getContentAsString();
+
+        String id = objectMapper.readTree(response).get("id").asText();
+
+        mockMvc.perform(patch("/tasks/" + id + "/complete"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.completed").value(true));
+    }
+
+    @Test
+    void shouldExcludeCompletedTasksFromGetAllTasks() throws Exception {
+        mockMvc.perform(post("/tasks").contentType(MediaType.APPLICATION_JSON).content(toJson("Active", 3, 3)));
+
+        String response = mockMvc.perform(post("/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson("Completed", 5, 5)))
+                .andReturn().getResponse().getContentAsString();
+
+        String id = objectMapper.readTree(response).get("id").asText();
+        mockMvc.perform(patch("/tasks/" + id + "/complete"));
+
+        mockMvc.perform(get("/tasks"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name").value("Active"));
+    }
+
+    @Test
+    void shouldReturn400WhenCompletingNonExistentTask() throws Exception {
+        mockMvc.perform(patch("/tasks/non-existent-id/complete"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Task not found with id: non-existent-id"));
+    }
+
+    @Test
+    void shouldReturnCompletedFalseOnTaskCreation() throws Exception {
+        mockMvc.perform(post("/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson("New Task", 3, 3)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.completed").value(false));
+    }
+}
