@@ -1,0 +1,192 @@
+================================================================================
+  TASK PRIORITY SCORE (EISENHOWER) - CENTRALIZED TECHNICAL MANIFEST
+  Single Source of Truth | Auto-maintained by Centralized Documentation Architect
+================================================================================
+
+--------------------------------------------------------------------------------
+MODEL: Task.java
+--------------------------------------------------------------------------------
+
+[Task.java] -> [Task(String name, int urgency, int importance)]
+  Purpose: Constructor. Creates a new Task instance with a randomly generated UUID,
+           and immediately calculates the priorityScore as urgency * importance.
+  Params:  String/name, int/urgency, int/importance
+  Last Updated: 2026-04-23
+
+[Task.java] -> [getId()]
+  Purpose: Returns the unique identifier of the task.
+  Params:  None
+  Last Updated: 2026-04-23
+
+[Task.java] -> [getName()]
+  Purpose: Returns the name/description of the task.
+  Params:  None
+  Last Updated: 2026-04-23
+
+[Task.java] -> [getUrgency()]
+  Purpose: Returns the urgency score (1–5) of the task.
+  Params:  None
+  Last Updated: 2026-04-23
+
+[Task.java] -> [getImportance()]
+  Purpose: Returns the importance score (1–5) of the task.
+  Params:  None
+  Last Updated: 2026-04-23
+
+[Task.java] -> [getPriorityScore()]
+  Purpose: Returns the computed priority score (urgency * importance, range 1–25).
+  Params:  None
+  Last Updated: 2026-04-23
+
+[Task.java] -> [setName(String name)]
+  Purpose: Updates the name/description of the task.
+  Params:  String/name
+  Last Updated: 2026-04-23
+
+[Task.java] -> [setUrgency(int urgency)]
+  Purpose: Updates the urgency score of the task.
+  Params:  int/urgency
+  Last Updated: 2026-04-23
+
+[Task.java] -> [setImportance(int importance)]
+  Purpose: Updates the importance score of the task.
+  Params:  int/importance
+  Last Updated: 2026-04-23
+
+[Task.java] -> [recalculateScore()]
+  Purpose: Recalculates and updates the priorityScore field after urgency or
+           importance values have been changed via setters (used during task updates).
+  Params:  None
+  Last Updated: 2026-04-23
+
+--------------------------------------------------------------------------------
+DTO: TaskRequest.java
+--------------------------------------------------------------------------------
+
+[TaskRequest.java] -> [getName()]
+  Purpose: Returns the task name from the incoming HTTP request body.
+  Params:  None
+  Last Updated: 2026-04-23
+
+[TaskRequest.java] -> [getUrgency()]
+  Purpose: Returns the urgency value from the incoming HTTP request body.
+  Params:  None
+  Last Updated: 2026-04-23
+
+[TaskRequest.java] -> [getImportance()]
+  Purpose: Returns the importance value from the incoming HTTP request body.
+  Params:  None
+  Last Updated: 2026-04-23
+
+[TaskRequest.java] -> [setName(String name)]
+  Purpose: Binds the task name from the deserialized JSON request body.
+  Params:  String/name
+  Last Updated: 2026-04-23
+
+[TaskRequest.java] -> [setUrgency(int urgency)]
+  Purpose: Binds the urgency value from the deserialized JSON request body.
+  Params:  int/urgency
+  Last Updated: 2026-04-23
+
+[TaskRequest.java] -> [setImportance(int importance)]
+  Purpose: Binds the importance value from the deserialized JSON request body.
+  Params:  int/importance
+  Last Updated: 2026-04-23
+
+--------------------------------------------------------------------------------
+SERVICE: TaskService.java
+--------------------------------------------------------------------------------
+
+[TaskService.java] -> [validateRequest(TaskRequest request)]
+  Purpose: Private validation gate. Ensures task name is non-blank and both
+           urgency and importance are within the 1–5 range. Throws
+           InvalidTaskInputException with a descriptive message on any violation.
+  Params:  TaskRequest/request
+  Last Updated: 2026-04-23
+
+[TaskService.java] -> [createTask(TaskRequest request)]
+  Purpose: Validates the request, constructs a new Task entity, stores it in the
+           in-memory taskStore map, and returns the created task.
+  Params:  TaskRequest/request
+  Last Updated: 2026-04-23
+
+[TaskService.java] -> [getAllTasksSorted()]
+  Purpose: Retrieves all tasks from the in-memory store and returns them as a list
+           sorted by priorityScore in descending order (highest priority first).
+  Params:  None
+  Last Updated: 2026-04-23
+
+[TaskService.java] -> [updateTask(String id, TaskRequest request)]
+  Purpose: Looks up a task by ID, validates the new input values, applies updates
+           to name/urgency/importance, and triggers a priority score recalculation.
+           Throws InvalidTaskInputException if the task ID is not found.
+  Params:  String/id, TaskRequest/request
+  Last Updated: 2026-04-23
+
+[TaskService.java] -> [deleteTask(String id)]
+  Purpose: Removes a task from the in-memory store by its ID. Throws
+           InvalidTaskInputException if no task exists with the given ID.
+  Params:  String/id
+  Last Updated: 2026-04-23
+
+--------------------------------------------------------------------------------
+CONTROLLER: TaskController.java
+--------------------------------------------------------------------------------
+
+[TaskController.java] -> [TaskController(TaskService taskService)]
+  Purpose: Constructor injection of TaskService dependency into the controller.
+  Params:  TaskService/taskService
+  Last Updated: 2026-04-23
+
+[TaskController.java] -> [createTask(TaskRequest request)]
+  Purpose: Handles POST /tasks. Accepts a JSON request body, delegates to the
+           service layer to create the task, and returns HTTP 201 Created with
+           the new task in the response body.
+  Params:  TaskRequest/request
+  Last Updated: 2026-04-23
+
+[TaskController.java] -> [getAllTasks()]
+  Purpose: Handles GET /tasks. Returns HTTP 200 OK with a list of all tasks
+           sorted by priorityScore descending.
+  Params:  None
+  Last Updated: 2026-04-23
+
+[TaskController.java] -> [updateTask(String id, TaskRequest request)]
+  Purpose: Handles PUT /tasks/{id}. Updates an existing task's fields and
+           returns HTTP 200 OK with the updated task. Returns 400 if ID is
+           not found or inputs are invalid.
+  Params:  String/id, TaskRequest/request
+  Last Updated: 2026-04-23
+
+[TaskController.java] -> [deleteTask(String id)]
+  Purpose: Handles DELETE /tasks/{id}. Removes a task by ID and returns HTTP
+           204 No Content. Returns 400 if the task ID does not exist.
+  Params:  String/id
+  Last Updated: 2026-04-23
+
+--------------------------------------------------------------------------------
+EXCEPTION: InvalidTaskInputException.java
+--------------------------------------------------------------------------------
+
+[InvalidTaskInputException.java] -> [InvalidTaskInputException(String message)]
+  Purpose: Custom runtime exception constructor. Wraps a descriptive validation
+           error message to be surfaced via the GlobalExceptionHandler as a
+           400 Bad Request response.
+  Params:  String/message
+  Last Updated: 2026-04-23
+
+--------------------------------------------------------------------------------
+EXCEPTION HANDLER: GlobalExceptionHandler.java
+--------------------------------------------------------------------------------
+
+[GlobalExceptionHandler.java] -> [handleInvalidTaskInput(InvalidTaskInputException ex)]
+  Purpose: Intercepts all InvalidTaskInputException throws across the application
+           via @RestControllerAdvice. Returns a structured JSON error body
+           {"error": "<message>"} with HTTP 400 Bad Request.
+  Params:  InvalidTaskInputException/ex
+  Last Updated: 2026-04-23
+
+================================================================================
+  END OF MANIFEST | Total Methods Documented: 24
+================================================================================
+
